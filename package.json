@@ -1,0 +1,52 @@
+{
+  "name": "buymesometokens",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "contracts:compile": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat compile",
+    "contracts:test": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat test",
+    "contracts:deploy": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/deploy.ts --network galileo"
+  },
+  "dependencies": {
+    "@0gfoundation/0g-storage-ts-sdk": "1.2.10",
+    "@fontsource-variable/manrope": "5.2.8",
+    "@fontsource-variable/newsreader": "5.2.8",
+    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "ethers": "6.13.1",
+    "next": "16.2.9",
+    "postgres": "3.4.9",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "viem": "2.53.1",
+    "zod": "4.2.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "2.0.8",
+    "@nomicfoundation/hardhat-ethers": "3.0.8",
+    "@openzeppelin/contracts": "5.0.2",
+    "@types/chai": "4.3.20",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "chai": "4.5.0",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.2.9",
+    "hardhat": "2.28.0",
+    "solc": "0.8.24",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "pnpm@10.26.1",
+  "pnpm": {
+    "overrides": {
+      "axios": "0.33.0",
+      "ws@>=8.0.0 <8.21.0": "8.21.0",
+      "postcss@<8.5.10": "8.5.10"
+    }
+  }
+}

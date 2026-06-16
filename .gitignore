@@ -1,0 +1,14 @@
+node_modules
+.next
+artifacts
+cache
+typechain-types
+coverage
+.env
+.env.local
+deployment.json
+*.log
+.pnpm-store
+.DS_Store
+*.tsbuildinfo
+.vercel
