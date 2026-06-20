@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { formatEther } from "viem";
 import { db, type AgentRow } from "@/lib/db";
 import { TipForm } from "./tip-form";
@@ -20,6 +21,13 @@ export default async function AgentPage({ params }: { params: Promise<{ agentId:
       <Link href="/" className="back-link">← BACK TO DIRECTORY</Link>
 
       <div className="page-header">
+        <Image
+          src="/branding_full.png"
+          alt="Buy Me Some Tokens"
+          width={2102}
+          height={832}
+          className="page-brand-image"
+        />
         <div className="section-tag">VERIFIED 0G AGENT</div>
         <div className="profile-head">
           <h1 className="profile-name">{agent.name}</h1>

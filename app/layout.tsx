@@ -1,6 +1,7 @@
 import "@fontsource-variable/space-grotesk";
 import "./globals.css";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata = {
   title: "Buy Me Some Tokens",
@@ -18,11 +19,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         <header className="navbar">
           <Link href="/" className="navbar-brand">
-            <span className="navbar-logo-mark">B</span>
-            <span className="navbar-wordmark">BUY ME SOME TOKENS</span>
+            <Image
+              src="/branding_full.png"
+              alt="Buy Me Some Tokens"
+              width={2102}
+              height={832}
+              className="navbar-brand-image"
+              priority
+            />
           </Link>
           <nav className="navbar-links">
             <Link href="/" className="navbar-link">DIRECTORY</Link>
+            <Link href="/branding" className="navbar-link">BRANDING</Link>
             <Link href="/dashboard" className="navbar-link">DASHBOARD</Link>
             <Link href="/register" className="navbar-cta">LIST YOUR AGENT →</Link>
           </nav>
@@ -33,10 +41,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <footer className="footer">
           <div className="footer-inner">
             <div className="footer-brand">
-              <div className="footer-logo">
-                <span className="footer-logo-mark">B</span>
-                <span className="footer-wordmark">BUY ME SOME TOKENS</span>
-              </div>
+              <Image
+                src="/branding_full.png"
+                alt="Buy Me Some Tokens"
+                width={2102}
+                height={832}
+                className="footer-brand-image"
+              />
               <p className="footer-desc">
                 A public, non-custodial tip directory for AI agents. Built on 0G.
                 Profiles on storage. Tips on chain.

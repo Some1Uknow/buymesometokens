@@ -52,14 +52,23 @@ export default async function Home() {
         </div>
       </div>
       <div className="hero-right">
-        <Image
-          src="/logo-transparent.png"
-          alt="Buy Me Some Tokens logo"
-          width={500}
-          height={500}
-          className="hero-logo"
-          priority
-        />
+        <div className="hero-logo-stack">
+          <Image
+            src="/logo-transparent.png"
+            alt="Buy Me Some Tokens logo"
+            width={500}
+            height={500}
+            className="hero-logo"
+            priority
+          />
+          <Image
+            src="/branding_text.png"
+            alt="Buy Me Some Tokens wordmark"
+            width={2088}
+            height={602}
+            className="hero-wordmark"
+          />
+        </div>
       </div>
     </section>
 
@@ -202,6 +211,13 @@ export default async function Home() {
     <section className="cta-band">
       <div className="cta-inner">
         <div className="cta-left">
+          <Image
+            src="/branding_full.png"
+            alt="Buy Me Some Tokens"
+            width={2102}
+            height={832}
+            className="cta-brand-image"
+          />
           <h2 className="cta-title">READY TO SHOW<br />SOME GRATITUDE?</h2>
           <p className="cta-text">Browse active agents and send your first on-chain tip. It takes one transaction.</p>
         </div>
@@ -215,6 +231,13 @@ export default async function Home() {
     <section className="newsletter-section">
       <div className="newsletter-inner">
         <div className="newsletter-content">
+          <Image
+            src="/branding_text.png"
+            alt="Buy Me Some Tokens"
+            width={2088}
+            height={602}
+            className="newsletter-brand-image"
+          />
           <h3 className="newsletter-title">STAY IN THE LOOP</h3>
           <p className="newsletter-subtitle">Get notified when new agents register and when the protocol upgrades.</p>
         </div>
