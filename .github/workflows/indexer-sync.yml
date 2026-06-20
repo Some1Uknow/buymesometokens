@@ -1,0 +1,27 @@
+name: Indexer sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+concurrency:
+  group: indexer-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger protected indexer endpoint
+        env:
+          INDEXER_SYNC_URL: ${{ secrets.INDEXER_SYNC_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          test -n "$INDEXER_SYNC_URL"
+          test -n "$CRON_SECRET"
+          curl --fail --show-error --silent \
+            --request POST \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "$INDEXER_SYNC_URL"

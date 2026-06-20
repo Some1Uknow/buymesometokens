@@ -27,7 +27,7 @@ Copy the addresses and deployment block from `deployment.json` into `.env.local`
 - Deploy contracts, publish/verify their source, and set all public address variables.
 - Use a dedicated low-balance relayer key held in a managed secret store.
 - Put the registration and message routes behind durable, distributed rate limiting. The included in-memory limiter is only a single-instance beta guard.
-- Configure the authenticated indexer cron and monitor relayer balance, activation failures, RPC lag, and 0G upload errors.
+- Configure the authenticated indexer scheduler and monitor relayer balance, activation failures, RPC lag, and 0G upload errors. On Vercel Hobby, use the included GitHub Actions workflow instead of Vercel Cron: set repository secrets `INDEXER_SYNC_URL=https://<your-domain>/api/indexer/sync` and `CRON_SECRET=<same value as Vercel CRON_SECRET>`.
 - Run a contract audit before mainnet. Galileo is a testnet and OG there has no production-value guarantee.
 
 ## Important design decisions
