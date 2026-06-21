@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createPublicClient, createWalletClient, getAddress, http, keccak256, stringToBytes } from "viem";
+import { createPublicClient, createWalletClient, getAddress, http, keccak256, stringToBytes, zeroHash } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { z } from "zod";
 import { chain, registryAddress, relayerKey } from "@/lib/config";
@@ -25,6 +25,15 @@ export async function POST(request: Request) {
     const publicClient = createPublicClient({ transport });
     const valid = await publicClient.verifyTypedData({ address: message.wallet, domain, types: registrationTypes, primaryType: "Registration", message, signature: input.signature as `0x${string}` });
     if (!valid) return NextResponse.json({ error: "Signature does not match the registered wallet" }, { status: 401 });
+    const onchainAgentId = await publicClient.readContract({ address: registryAddress(), abi: registryAbi, functionName: "walletToAgentId", args: [message.wallet] });
+    if (onchainAgentId !== zeroHash) {
+      if (onchainAgentId === message.agentId) {
+        await sql`UPDATE agents SET status = 'active', error_message = NULL, updated_at = now() WHERE id = ${agent.id}`;
+        return NextResponse.json({ agentId: agent.id, status: "active", txHash: agent.activation_tx_hash });
+      }
+      await sql`UPDATE agents SET status = 'failed', error_message = 'Wallet already registered on-chain to another agent.', updated_at = now() WHERE id = ${agent.id}`;
+      return NextResponse.json({ error: "This wallet is already registered on-chain to another agent. Use a different wallet." }, { status: 409 });
+    }
 
     await sql`UPDATE agents SET status = 'activating', error_message = NULL, updated_at = now() WHERE id = ${agent.id}`;
     const account = privateKeyToAccount(relayerKey());

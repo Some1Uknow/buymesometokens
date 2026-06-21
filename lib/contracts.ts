@@ -8,6 +8,13 @@ export const registryAbi = [
     ], outputs: [],
   },
   { type: "function", name: "nonces", stateMutability: "view", inputs: [{ name: "", type: "address" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "walletToAgentId", stateMutability: "view", inputs: [{ name: "", type: "address" }], outputs: [{ type: "bytes32" }] },
+  { type: "error", name: "AgentExists", inputs: [] },
+  { type: "error", name: "WalletAlreadyRegistered", inputs: [] },
+  { type: "error", name: "InvalidSignature", inputs: [] },
+  { type: "error", name: "SignatureExpired", inputs: [] },
+  { type: "error", name: "NotAgentOwner", inputs: [] },
+  { type: "error", name: "InvalidAgent", inputs: [] },
 ] as const;
 
 export const tipJarAbi = [

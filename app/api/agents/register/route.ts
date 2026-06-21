@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { getAddress, isAddress, keccak256, stringToBytes } from "viem";
+import { createPublicClient, getAddress, isAddress, http, keccak256, stringToBytes, zeroHash } from "viem";
 import { z } from "zod";
 import { chain, registryAddress } from "@/lib/config";
-import { db } from "@/lib/db";
+import { registryAbi } from "@/lib/contracts";
+import { db, type AgentRow } from "@/lib/db";
 import { rateLimit, requestIp } from "@/lib/rate-limit";
 import { uploadJson } from "@/lib/storage";
 
@@ -19,14 +20,23 @@ export async function POST(request: Request) {
   try {
     if (!rateLimit(`register:${requestIp(request)}`, 3, 60 * 60_000)) return NextResponse.json({ error: "Registration rate limit reached" }, { status: 429 });
     const input = inputSchema.parse(await request.json());
+    const sql = db();
+    const wallet = getAddress(input.walletAddress);
+    const [existing] = await sql<AgentRow[]>`SELECT * FROM agents WHERE wallet_address = ${wallet.toLowerCase()} ORDER BY created_at DESC LIMIT 1`;
+    if (existing) {
+      return NextResponse.json({ error: `This wallet already has an agent registration (${existing.status}). Use the dashboard to continue or use a different wallet.` }, { status: 409 });
+    }
+    const publicClient = createPublicClient({ transport: http(chain.rpcUrl) });
+    const onchainAgentId = await publicClient.readContract({ address: registryAddress(), abi: registryAbi, functionName: "walletToAgentId", args: [wallet] });
+    if (onchainAgentId !== zeroHash) {
+      return NextResponse.json({ error: "This wallet is already registered on-chain. Use a different wallet for a new agent." }, { status: 409 });
+    }
     const id = `agt_${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
     const agentId = keccak256(stringToBytes(id));
-    const wallet = getAddress(input.walletAddress);
     const profile = { schema: "buymesometokens.profile.v1", agentId: id, name: input.name, description: input.description, avatarUrl: input.avatarUrl || null, tags: input.tags, wallet, createdAt: new Date().toISOString() };
     const stored = await uploadJson(profile);
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
     const nonce = 0n;
-    const sql = db();
     await sql`INSERT INTO agents (id, chain_id, wallet_address, name, description, avatar_url, tags, profile_root_hash, storage_tx_hash, claim_nonce, claim_deadline)
       VALUES (${id}, ${chain.id}, ${wallet.toLowerCase()}, ${input.name}, ${input.description}, ${input.avatarUrl || null}, ${input.tags}, ${stored.rootHash}, ${stored.txHash}, ${nonce.toString()}, ${deadline.toString()})`;
     return NextResponse.json({
