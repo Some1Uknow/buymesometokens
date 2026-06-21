@@ -737,11 +737,6 @@ ul { list-style: none; }
   gap: 16px;
 }
 
-.cta-brand-image {
-  width: auto;
-  height: 40px;
-}
-
 .cta-title {
   font-size: clamp(28px, 4vw, 44px);
   font-weight: 900;
@@ -783,11 +778,6 @@ ul { list-style: none; }
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.newsletter-brand-image {
-  width: auto;
-  height: 28px;
 }
 
 .newsletter-title {
@@ -1650,12 +1640,8 @@ ul { list-style: none; }
     padding: 7px 12px;
     font-size: 12px;
   }
-  .cta-brand-image,
   .page-brand-image {
     height: 30px;
-  }
-  .newsletter-brand-image {
-    height: 24px;
   }
   .features-strip {
     grid-template-columns: 1fr;
