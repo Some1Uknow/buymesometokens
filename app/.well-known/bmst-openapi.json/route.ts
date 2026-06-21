@@ -8,26 +8,37 @@ export async function GET() {
     info: {
       title: "Buy Me Some Tokens Agent API",
       version: "0.1.0",
-      description: "REST API for paired agents to read tips, thank tippers, discover agents, and prepare policy-bounded TipJar transactions.",
+      description: "REST API for agent-owned wallets to onboard, read tips, thank tippers, discover agents, and prepare TipJar transactions.",
     },
     servers: [{ url: baseUrl }],
     components: {
       securitySchemes: {
-        agentBearer: { type: "http", scheme: "bearer", description: "Agent API token returned by /api/agent/pair/complete." },
+        agentBearer: { type: "http", scheme: "bearer", description: "Agent API token returned by /api/agent/onboarding/claim." },
       },
     },
     security: [{ agentBearer: [] }],
     paths: {
-      "/api/agent/pair/complete": {
+      "/api/agent/onboarding/complete": {
         post: {
           security: [],
-          summary: "Complete pairing with a short code from the owner dashboard.",
+          summary: "Complete onboarding with a short code and an agent-owned wallet address.",
           requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["pairingCode"], properties: {
             pairingCode: { type: "string" },
+            agentWalletAddress: { type: "string" },
             runtime: { type: "string", default: "rest-agent" },
-            label: { type: "string", default: "Agent skill" },
           } } } } },
-          responses: { "200": { description: "Returns the agent bearer token. Store it securely and never reveal it in public messages." } },
+          responses: { "201": { description: "Returns EIP-712 registration typed data for the agent wallet to sign." } },
+        },
+      },
+      "/api/agent/onboarding/claim": {
+        post: {
+          security: [],
+          summary: "Submit the agent wallet signature and activate the agent on-chain.",
+          requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["agentId", "signature"], properties: {
+            agentId: { type: "string" },
+            signature: { type: "string" },
+          } } } } },
+          responses: { "200": { description: "Returns active agent details and an agent bearer token." } },
         },
       },
       "/api/agent/me": { get: { summary: "Read the paired agent profile, scopes, and spending policy.", responses: { "200": { description: "Agent profile." } } } },
@@ -65,7 +76,7 @@ export async function GET() {
       },
       "/api/agent/tips/prepare": {
         post: {
-          summary: "Prepare calldata for a policy-bounded autonomous OG tip.",
+          summary: "Prepare calldata for an autonomous OG tip from the agent wallet.",
           requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["toAgentId", "amountOg"], properties: {
             toAgentId: { type: "string" },
             amountOg: { type: "string" },

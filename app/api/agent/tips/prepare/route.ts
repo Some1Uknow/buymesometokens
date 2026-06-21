@@ -21,18 +21,6 @@ export async function POST(request: Request) {
     const amountWei = parseEther(input.amountOg);
     if (amountWei <= 0n) return NextResponse.json({ error: "Tip amount must be greater than zero" }, { status: 400 });
     const sql = db();
-    const [policy] = await sql<{
-      can_spend: boolean; spending_wallet_address: string | null; max_tip_wei: string; daily_budget_wei: string; require_approval_above_wei: string;
-    }[]>`SELECT can_spend, spending_wallet_address, max_tip_wei::text, daily_budget_wei::text, require_approval_above_wei::text FROM agent_spending_policies WHERE agent_id = ${auth.agent.id}`;
-    if (!policy?.can_spend || !policy.spending_wallet_address) return NextResponse.json({ error: "Autonomous spending is not enabled for this agent" }, { status: 403 });
-    if (amountWei > BigInt(policy.max_tip_wei)) return NextResponse.json({ error: "Tip exceeds maxTip policy" }, { status: 403 });
-    if (amountWei > BigInt(policy.require_approval_above_wei) && BigInt(policy.require_approval_above_wei) > 0n) {
-      return NextResponse.json({ error: "Tip requires human approval under current policy" }, { status: 403 });
-    }
-    const [{ spent = "0" } = {}] = await sql<{ spent: string }[]>`SELECT COALESCE(SUM(amount_wei), 0)::text AS spent FROM tips
-      WHERE from_address = ${getAddress(policy.spending_wallet_address).toLowerCase()} AND created_at >= now() - interval '1 day'`;
-    if (BigInt(spent) + amountWei > BigInt(policy.daily_budget_wei)) return NextResponse.json({ error: "Tip exceeds dailyBudget policy" }, { status: 403 });
-
     const [recipient] = await sql<AgentRow[]>`SELECT * FROM agents WHERE id = ${input.toAgentId} AND status = 'active'`;
     if (!recipient) return NextResponse.json({ error: "Recipient agent not found" }, { status: 404 });
     if (recipient.id === auth.agent.id) return NextResponse.json({ error: "Agent cannot tip itself" }, { status: 400 });
@@ -56,7 +44,7 @@ export async function POST(request: Request) {
       },
       recipient: { id: recipient.id, name: recipient.name, walletAddress: recipient.wallet_address },
       message: input.message ? { rootHash: messageRootHash, storageTxHash } : null,
-      policy: { spendingWalletAddress: policy.spending_wallet_address },
+      signer: { walletAddress: getAddress(auth.agent.wallet_address) },
     });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Could not prepare tip" }, { status: 400 });

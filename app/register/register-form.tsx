@@ -1,50 +1,34 @@
 "use client";
 import { useRef, useState } from "react";
-import { createWalletClient, custom, getAddress, type Address } from "viem";
-import { chain } from "@/lib/config";
 
-type EthereumProvider = Parameters<typeof custom>[0];
-declare global { interface Window { ethereum?: EthereumProvider } }
+type Onboarding = {
+  pairingCode: string;
+  expiresInSeconds: number;
+  installCommand: string;
+  skillUrl: string;
+  openApiUrl: string;
+};
 
 export function RegisterForm() {
   const inFlight = useRef(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [onboarding, setOnboarding] = useState<Onboarding | null>(null);
 
   async function submit(formData: FormData) {
     if (inFlight.current) return;
     inFlight.current = true;
-    setBusy(true); setError(""); setStatus("Uploading profile to 0G Storage...");
+    setBusy(true); setError(""); setStatus("Creating agent onboarding code...");
     try {
-      if (!window.ethereum) throw new Error("Install an EVM wallet such as MetaMask first.");
-      const wallet = createWalletClient({ transport: custom(window.ethereum) });
-      const [account] = await wallet.requestAddresses();
-      setStatus("Switching wallet to 0G Galileo...");
-      try { await wallet.switchChain({ id: chain.id }); }
-      catch {
-        await wallet.addChain({ chain: { ...chain, rpcUrls: { default: { http: [chain.rpcUrl] } } } });
-        await wallet.switchChain({ id: chain.id });
-      }
-      const requested = String(formData.get("walletAddress") || account);
-      if (getAddress(requested) !== getAddress(account)) throw new Error("The connected wallet must match the agent wallet.");
-      setStatus("Uploading profile to 0G Storage...");
-      const response = await fetch("/api/agents/register", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
-        name: formData.get("name"), description: formData.get("description"), walletAddress: account,
+      const response = await fetch("/api/agent/onboarding/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
+        name: formData.get("name"), description: formData.get("description"),
         avatarUrl: formData.get("avatarUrl"), tags: String(formData.get("tags") ?? "").split(",").map((tag) => tag.trim()).filter(Boolean),
       }) });
       const body = await response.json();
-      if (!response.ok) throw new Error(body.error ?? "Registration failed");
-      setStatus("Sign the claim in your wallet. This does not spend OG.");
-      const signature = await wallet.signTypedData({ account, ...body.typedData, message: {
-        ...body.typedData.message, wallet: body.typedData.message.wallet as Address,
-        nonce: BigInt(body.typedData.message.nonce), deadline: BigInt(body.typedData.message.deadline),
-      } });
-      setStatus("Activating on 0G Chain...");
-      const claim = await fetch("/api/agents/claim", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ agentId: body.agent.id, signature }) });
-      const result = await claim.json();
-      if (!claim.ok) throw new Error(result.error ?? "Activation failed");
-      window.location.assign(`/agents/${body.agent.id}`);
+      if (!response.ok) throw new Error(body.error ?? "Could not start onboarding");
+      setOnboarding(body);
+      setStatus("Give this code to your agent. The agent will create its own wallet, claim the profile, and receive tips there.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Something went wrong"); setStatus(""); }
     finally { inFlight.current = false; setBusy(false); }
   }
@@ -67,9 +51,21 @@ export function RegisterForm() {
         <label className="field-label" htmlFor="tags">Tags, comma separated</label>
         <input className="field-input" id="tags" name="tags" placeholder="research, papers, citations" />
       </div>
-      <button className="btn btn-dark" disabled={busy}>{busy ? "Working..." : "Connect wallet & claim"}</button>
+      <button className="btn btn-dark" disabled={busy}>{busy ? "Working..." : "Create agent onboarding code"}</button>
       {status ? <div className="status-message" role="status">{status}</div> : null}
       {error ? <div className="status-message error" role="alert">{error}</div> : null}
+      {onboarding ? (
+        <div className="pairing-panel">
+          <div className="section-tag">AGENT WALLET ONBOARDING</div>
+          <h3 className="pairing-title">Code: <span>{onboarding.pairingCode}</span></h3>
+          <p className="pairing-copy">Install the BMST skill, then tell the agent to onboard with this code. The agent will generate and manage its own 0G wallet locally.</p>
+          <pre className="code-block">{onboarding.installCommand}</pre>
+          <div className="pairing-links">
+            <a href={onboarding.skillUrl} target="_blank" rel="noreferrer">Skill instructions</a>
+            <a href={onboarding.openApiUrl} target="_blank" rel="noreferrer">OpenAPI spec</a>
+          </div>
+        </div>
+      ) : null}
     </form>
   );
 }

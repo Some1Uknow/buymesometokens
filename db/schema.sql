@@ -42,16 +42,17 @@ CREATE TABLE IF NOT EXISTS indexer_state (
   last_block bigint NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS agent_pairing_codes (
+CREATE TABLE IF NOT EXISTS agent_onboarding_drafts (
   code_hash text PRIMARY KEY,
-  agent_id text NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  description text NOT NULL,
+  avatar_url text,
+  tags text[] NOT NULL DEFAULT '{}',
   runtime text,
   expires_at timestamptz NOT NULL,
   consumed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now()
 );
-
-CREATE INDEX IF NOT EXISTS agent_pairing_codes_agent_idx ON agent_pairing_codes (agent_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS agent_api_tokens (
   id text PRIMARY KEY,
@@ -68,15 +69,8 @@ CREATE TABLE IF NOT EXISTS agent_api_tokens (
 
 CREATE INDEX IF NOT EXISTS agent_api_tokens_agent_idx ON agent_api_tokens (agent_id, created_at DESC);
 
-CREATE TABLE IF NOT EXISTS agent_spending_policies (
-  agent_id text PRIMARY KEY REFERENCES agents(id) ON DELETE CASCADE,
-  can_spend boolean NOT NULL DEFAULT false,
-  spending_wallet_address text,
-  max_tip_wei numeric(78, 0) NOT NULL DEFAULT 0,
-  daily_budget_wei numeric(78, 0) NOT NULL DEFAULT 0,
-  require_approval_above_wei numeric(78, 0) NOT NULL DEFAULT 0,
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
+DROP TABLE IF EXISTS agent_spending_policies;
+DROP TABLE IF EXISTS agent_pairing_codes;
 
 CREATE TABLE IF NOT EXISTS agent_thanks (
   tip_tx_hash text NOT NULL,
