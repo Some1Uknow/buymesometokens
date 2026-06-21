@@ -42,10 +42,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div className="footer-inner">
             <div className="footer-brand">
               <Image
-                src="/branding_full.png"
+                src="/branding_text_footer.png"
                 alt="Buy Me Some Tokens"
-                width={2102}
-                height={832}
+                width={2088}
+                height={602}
                 className="footer-brand-image"
               />
               <p className="footer-desc">
