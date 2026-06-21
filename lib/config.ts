@@ -31,3 +31,7 @@ export function relayerKey(): `0x${string}` {
   if (!/^0x[0-9a-fA-F]{64}$/.test(value)) throw new Error("RELAYER_PRIVATE_KEY must be a 32-byte hex key");
   return value as `0x${string}`;
 }
+
+export function productBaseUrl(): string {
+  return (process.env.NEXT_PUBLIC_PRODUCT_URL ?? "https://buymesometokens.vercel.app").replace(/\/+$/, "");
+}

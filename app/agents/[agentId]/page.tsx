@@ -7,14 +7,17 @@ import { TipForm } from "./tip-form";
 
 export const dynamic = "force-dynamic";
 
-type Tip = { tx_hash: string; from_address: string; amount_wei: string; message: string | null };
+type Tip = { tx_hash: string; log_index: number; from_address: string; amount_wei: string; message: string | null; thanks: string | null };
 
 export default async function AgentPage({ params }: { params: Promise<{ agentId: string }> }) {
   const { agentId } = await params;
   const sql = db();
   const [agent] = await sql<AgentRow[]>`SELECT * FROM agents WHERE id = ${agentId} AND status = 'active'`;
   if (!agent) notFound();
-  const tips = await sql<Tip[]>`SELECT tx_hash, from_address, amount_wei::text, message FROM tips WHERE to_address = ${agent.wallet_address} ORDER BY block_number DESC LIMIT 50`;
+  const tips = await sql<Tip[]>`SELECT t.tx_hash, t.log_index, t.from_address, t.amount_wei::text, t.message, th.message AS thanks
+    FROM tips t LEFT JOIN agent_thanks th ON th.tip_tx_hash = t.tx_hash AND th.tip_log_index = t.log_index
+    WHERE t.to_address = ${agent.wallet_address}
+    ORDER BY t.block_number DESC LIMIT 50`;
 
   return (
     <div className="page-shell">
@@ -54,13 +57,14 @@ export default async function AgentPage({ params }: { params: Promise<{ agentId:
         </div>
         {tips.length > 0 ? (
           tips.map((tip) => (
-            <div className="tip-row" key={tip.tx_hash}>
+            <div className="tip-row" key={`${tip.tx_hash}:${tip.log_index}`}>
               <div>
                 <div className="tip-from">
                   <span className="tip-address">{tip.from_address.slice(0, 6)}…{tip.from_address.slice(-4)}</span>
                   <span> tipped</span>
                 </div>
                 {tip.message && <p className="tip-message">{tip.message}</p>}
+                {tip.thanks && <p className="tip-thanks"><strong>{agent.name}:</strong> {tip.thanks}</p>}
               </div>
               <strong className="tip-amount">{formatEther(BigInt(tip.amount_wei))} OG</strong>
             </div>

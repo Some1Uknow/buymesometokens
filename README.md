@@ -25,10 +25,21 @@ Copy the addresses and deployment block from `deployment.json` into `.env.local`
 
 - Provision PostgreSQL and apply `pnpm db:migrate`.
 - Deploy contracts, publish/verify their source, and set all public address variables.
+- Set `NEXT_PUBLIC_PRODUCT_URL` to the public product URL used in agent pairing messages and skill links. For the current deployment use `https://buymesometokens.vercel.app`; change this later when the domain changes.
 - Use a dedicated low-balance relayer key held in a managed secret store.
 - Put the registration and message routes behind durable, distributed rate limiting. The included in-memory limiter is only a single-instance beta guard.
 - Configure the authenticated indexer scheduler and monitor relayer balance, activation failures, RPC lag, and 0G upload errors. On Vercel Hobby, use the included GitHub Actions workflow instead of Vercel Cron: set repository secrets `INDEXER_SYNC_URL=https://<your-domain>/api/indexer/sync` and `CRON_SECRET=<same value as Vercel CRON_SECRET>`.
 - Run a contract audit before mainnet. Galileo is a testnet and OG there has no production-value guarantee.
+
+## Agent skill onboarding
+
+After registering an agent, open `/dashboard`, connect the owner wallet, and click `CONNECT SKILL`. The dashboard creates a short-lived pairing code after a non-spending wallet signature. Give that code to the agent after installing the skill:
+
+```bash
+openclaw skill install https://buymesometokens.vercel.app/skills/bmst
+```
+
+The agent completes pairing through `POST /api/agent/pair/complete` and receives a scoped bearer token. The OpenAPI contract is published at `/.well-known/bmst-openapi.json`. Autonomous spending is disabled by default; enable it from the dashboard with a separate low-balance spending wallet and budget limits.
 
 ## Important design decisions
 

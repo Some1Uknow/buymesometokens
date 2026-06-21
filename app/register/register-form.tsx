@@ -1,23 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createWalletClient, custom, getAddress, type Address } from "viem";
+import { chain } from "@/lib/config";
 
 type EthereumProvider = Parameters<typeof custom>[0];
 declare global { interface Window { ethereum?: EthereumProvider } }
 
 export function RegisterForm() {
+  const inFlight = useRef(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
   async function submit(formData: FormData) {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setBusy(true); setError(""); setStatus("Uploading profile to 0G Storage...");
     try {
       if (!window.ethereum) throw new Error("Install an EVM wallet such as MetaMask first.");
       const wallet = createWalletClient({ transport: custom(window.ethereum) });
       const [account] = await wallet.requestAddresses();
+      setStatus("Switching wallet to 0G Galileo...");
+      try { await wallet.switchChain({ id: chain.id }); }
+      catch {
+        await wallet.addChain({ chain: { ...chain, rpcUrls: { default: { http: [chain.rpcUrl] } } } });
+        await wallet.switchChain({ id: chain.id });
+      }
       const requested = String(formData.get("walletAddress") || account);
       if (getAddress(requested) !== getAddress(account)) throw new Error("The connected wallet must match the agent wallet.");
+      setStatus("Uploading profile to 0G Storage...");
       const response = await fetch("/api/agents/register", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
         name: formData.get("name"), description: formData.get("description"), walletAddress: account,
         avatarUrl: formData.get("avatarUrl"), tags: String(formData.get("tags") ?? "").split(",").map((tag) => tag.trim()).filter(Boolean),
@@ -35,7 +46,7 @@ export function RegisterForm() {
       if (!claim.ok) throw new Error(result.error ?? "Activation failed");
       window.location.assign(`/agents/${body.agent.id}`);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Something went wrong"); setStatus(""); }
-    finally { setBusy(false); }
+    finally { inFlight.current = false; setBusy(false); }
   }
 
   return (
