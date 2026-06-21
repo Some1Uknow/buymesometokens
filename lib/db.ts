@@ -23,6 +23,7 @@ export type AgentRow = {
   claim_nonce: string;
   claim_deadline: string;
   activation_tx_hash: string | null;
+  error_message: string | null;
   created_at: Date;
   total_wei?: string;
   tip_count?: string;

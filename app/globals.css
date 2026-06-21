@@ -1444,6 +1444,14 @@ ul { list-style: none; }
   font-family: monospace;
 }
 
+.dashboard-item-error {
+  max-width: 520px;
+  margin-top: 8px;
+  color: #9b1c1c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .dashboard-item-status {
   display: inline-block;
   padding: 3px 8px;
@@ -1470,6 +1478,19 @@ ul { list-style: none; }
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.dashboard-terminal {
+  display: inline-flex;
+  align-items: center;
+  border: 3px solid var(--black);
+  background: var(--pastel-pink);
+  color: var(--black);
+  box-shadow: var(--shadow-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
 }
 
 .pairing-panel {

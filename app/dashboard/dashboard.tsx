@@ -6,7 +6,7 @@ import { registrationTypes } from "@/lib/contracts";
 
 type EthereumProvider = Parameters<typeof custom>[0];
 declare global { interface Window { ethereum?: EthereumProvider } }
-type Agent = { id: string; name: string; status: string; walletAddress: string; txHash: string | null; error: string | null; typedData: Record<string, unknown> | null };
+type Agent = { id: string; name: string; status: string; walletAddress: string; txHash: string | null; error: string | null; retryable: boolean; typedData: Record<string, unknown> | null };
 type PairingInfo = { agentId: string; pairingCode: string; installCommand: string; skillUrl: string; openApiUrl: string; expiresInSeconds: number };
 
 const productUrl = (process.env.NEXT_PUBLIC_PRODUCT_URL ?? "https://buymesometokens.vercel.app").replace(/\/+$/, "");
@@ -129,6 +129,7 @@ export function Dashboard() {
                   <span className={`dashboard-item-status ${agent.status}`}>{agent.status}</span>
                 </div>
                 <div className="dashboard-item-meta">{agent.id}</div>
+                {agent.error ? <div className="dashboard-item-error">{agent.error}</div> : null}
               </div>
               <div>
                 {agent.status === "active" ? (
@@ -137,8 +138,10 @@ export function Dashboard() {
                     <button className="btn btn-accent btn-small" onClick={() => startPairing(agent)}>CONNECT SKILL →</button>
                     <button className="btn btn-white btn-small" onClick={() => configurePolicy(agent)}>SPEND POLICY →</button>
                   </div>
-                ) : (
+                ) : agent.retryable ? (
                   <button className="btn btn-accent btn-small" onClick={() => retry(agent)}>RETRY →</button>
+                ) : (
+                  <span className="dashboard-terminal">USE DIFFERENT WALLET</span>
                 )}
               </div>
             </div>

@@ -41,7 +41,7 @@ export async function authenticateAgent(request: Request, requiredScopes: string
   const [row] = await sql<(AgentTokenRow & AgentRow)[]>`
     SELECT t.id, t.agent_id, t.scopes, t.revoked_at, t.expires_at,
       a.wallet_address, a.name, a.description, a.avatar_url, a.tags, a.status,
-      a.profile_root_hash, a.claim_nonce, a.claim_deadline, a.activation_tx_hash, a.created_at
+      a.profile_root_hash, a.claim_nonce, a.claim_deadline, a.activation_tx_hash, a.error_message, a.created_at
     FROM agent_api_tokens t
     JOIN agents a ON a.id = t.agent_id
     WHERE t.token_hash = ${sha256(token)}
@@ -66,6 +66,7 @@ export async function authenticateAgent(request: Request, requiredScopes: string
       claim_nonce: row.claim_nonce,
       claim_deadline: row.claim_deadline,
       activation_tx_hash: row.activation_tx_hash,
+      error_message: row.error_message,
       created_at: row.created_at,
     },
   };
