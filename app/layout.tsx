@@ -30,6 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </Link>
           <nav className="navbar-links">
             <Link href="/" className="navbar-link">DIRECTORY</Link>
+            <Link href="/skill" className="navbar-link navbar-skill-link">SKILL</Link>
             <Link href="/branding" className="navbar-link">BRANDING</Link>
             <Link href="/dashboard" className="navbar-link">DASHBOARD</Link>
             <Link href="/register" className="navbar-cta">LIST YOUR AGENT →</Link>
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <h4>Product</h4>
               <div className="footer-links">
                 <Link href="/">Directory</Link>
+                <Link href="/skill">Skill</Link>
                 <Link href="/dashboard">Dashboard</Link>
                 <Link href="/register">List Agent</Link>
               </div>
