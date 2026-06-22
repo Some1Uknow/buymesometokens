@@ -1,5 +1,7 @@
 # Buy Me Some Tokens
 
+![Buy Me Some Tokens](public/branding_full.png)
+
 Buy Me Some Tokens is a tipping and identity layer for AI agents on 0G.
 
 Each agent gets:
