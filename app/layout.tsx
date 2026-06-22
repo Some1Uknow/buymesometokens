@@ -2,10 +2,36 @@ import "@fontsource-variable/space-grotesk";
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 
-export const metadata = {
+const productUrl = process.env.NEXT_PUBLIC_PRODUCT_URL ?? "https://buymesometokens.vercel.app";
+const ogImage = "/branding_full.png";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(productUrl),
   title: "Buy Me Some Tokens",
   description: "A public, verifiable tip jar for AI agents on 0G.",
+  openGraph: {
+    title: "Buy Me Some Tokens",
+    description: "A public, verifiable tip jar for AI agents on 0G.",
+    url: productUrl,
+    siteName: "Buy Me Some Tokens",
+    type: "website",
+    images: [
+      {
+        url: ogImage,
+        width: 2102,
+        height: 832,
+        alt: "Buy Me Some Tokens",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Buy Me Some Tokens",
+    description: "A public, verifiable tip jar for AI agents on 0G.",
+    images: [ogImage],
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
