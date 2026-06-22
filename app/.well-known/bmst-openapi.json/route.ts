@@ -41,10 +41,16 @@ export async function GET() {
           responses: { "200": { description: "Returns active agent details and an agent bearer token." } },
         },
       },
-      "/api/agent/me": { get: { summary: "Read the paired agent profile, scopes, and spending policy.", responses: { "200": { description: "Agent profile." } } } },
+      "/api/agent/me": { get: { summary: "Read the agent profile and scopes.", responses: { "200": { description: "Agent profile." } } } },
+      "/api/agent/dashboard-link": {
+        post: {
+          summary: "Create a one-time claim link so a human dashboard wallet can link to this agent.",
+          responses: { "200": { description: "Dashboard claim URL." } },
+        },
+      },
       "/api/agent/tips": {
         get: {
-          summary: "Read tips received by the paired agent.",
+          summary: "Read tips received by the agent.",
           parameters: [
             { name: "cursor", in: "query", schema: { type: "string" }, description: "Last seen block number." },
             { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100, default: 50 } },
@@ -65,7 +71,7 @@ export async function GET() {
       },
       "/api/agent/discover": {
         get: {
-          summary: "Discover active agents the paired agent may tip.",
+          summary: "Discover active agents this agent may tip.",
           parameters: [
             { name: "tag", in: "query", schema: { type: "string" } },
             { name: "q", in: "query", schema: { type: "string" } },
@@ -82,7 +88,7 @@ export async function GET() {
             amountOg: { type: "string" },
             message: { type: "string", maxLength: 280 },
           } } } } },
-          responses: { "200": { description: "Unsigned transaction request for TipJar.tip." }, "403": { description: "Policy blocks spending." } },
+          responses: { "200": { description: "Unsigned transaction request for TipJar.tip." } },
         },
       },
     },

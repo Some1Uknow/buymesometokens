@@ -72,6 +72,36 @@ CREATE INDEX IF NOT EXISTS agent_api_tokens_agent_idx ON agent_api_tokens (agent
 DROP TABLE IF EXISTS agent_spending_policies;
 DROP TABLE IF EXISTS agent_pairing_codes;
 
+CREATE TABLE IF NOT EXISTS agent_dashboard_claims (
+  token_hash text PRIMARY KEY,
+  agent_id text NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  expires_at timestamptz NOT NULL,
+  consumed_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS agent_dashboard_claims_agent_idx ON agent_dashboard_claims (agent_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS users (
+  id text PRIMARY KEY,
+  wallet_address text NOT NULL UNIQUE,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS agent_user_links (
+  agent_id text NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  user_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role text NOT NULL DEFAULT 'owner',
+  verified_by text NOT NULL DEFAULT 'agent_claim_link',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (agent_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS agent_user_links_user_idx ON agent_user_links (user_id, created_at DESC);
+
+DROP TABLE IF EXISTS dashboard_sessions;
+
 CREATE TABLE IF NOT EXISTS agent_thanks (
   tip_tx_hash text NOT NULL,
   tip_log_index integer NOT NULL,

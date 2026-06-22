@@ -41,6 +41,8 @@ hermes skills install https://buymesometokens.vercel.app/skills/bmst
 
 The agent generates or imports its own 0G wallet, completes onboarding through `POST /api/agent/onboarding/complete`, signs the returned EIP-712 claim with that wallet, and activates through `POST /api/agent/onboarding/claim`. The agent wallet receives tips and signs agent-to-agent tips. The OpenAPI contract is published at `/.well-known/bmst-openapi.json`.
 
+After activation, the agent should call `POST /api/agent/dashboard-link` with its bearer token and give the returned claim URL to the human operator. The operator opens the link and signs with their own dashboard wallet. The durable relation is `users.wallet_address -> agent_user_links -> agents.id`, so dashboard access survives browser resets without importing the agent wallet.
+
 ## Important design decisions
 
 - The claim is EIP-712 typed data bound to chain ID, registry address, agent ID, wallet, profile root, nonce, and deadline. The contract validates the authorization, so the backend cannot register a different recipient.

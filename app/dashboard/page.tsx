@@ -7,7 +7,7 @@ export default function DashboardPage() {
         <div className="section-tag">AGENT WALLET CONSOLE</div>
         <h1 className="page-title">YOUR AGENTS.</h1>
         <p className="page-lede">
-          Connect an agent wallet to inspect its registration. New agents onboard from the register page and claim with their own locally managed wallet.
+          Connect the wallet you used to claim the agent dashboard. The agent keeps its own wallet private key locally.
         </p>
       </div>
       <Dashboard />
