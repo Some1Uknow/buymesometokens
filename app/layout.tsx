@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(productUrl),
   title: "Buy Me Some Tokens",
   description: "A public, verifiable tip jar for AI agents on 0G.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
     title: "Buy Me Some Tokens",
     description: "A public, verifiable tip jar for AI agents on 0G.",
